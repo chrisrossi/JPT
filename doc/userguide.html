@@ -1,0 +1,459 @@
+<html>
+  <head>
+    <title>JPT: User's Guide</title>
+    <style>
+      body { 
+        background-color: white; 
+        font-size: 12pt; 
+        color: black; 
+        font-family: arial,helvetica,verdana; 
+      }
+      .h1 { font-family: arial,helvetica,verdana; font-size: 24pt; font-weight: bold; }
+      .h2 { font-family: arial,helvetica,verdana; font-size: 20pt; font-weight: bold; }
+      .h3 { font-family: arial,helvetica,verdana; font-size: 18pt; font-weight: bold; }
+      .h4 { font-family: arial,helvetica,verdana; font-size: 16pt; font-weight: bold; }
+      .sub { font-family: arial,helvetica,verdana; font-size: 10pt; }
+    </style>
+  </head>
+  <body>
+    <a name="top"></a>
+    <div class="h1">JPT: User's Guide</div>
+    <div class="sub">last modified: 2004/06/02</div>
+    <div class="sub">author <a href="mailto:chris@christophermrossi.com">Chris Rossi</a></div>
+    <div class="h2">&nbsp;</div>
+
+    <a name="zpt"></a>
+    <div class="h2">Zope Page Templates</div>
+    <p>
+      JPT is a Java implementation of Zope Page Templates (ZPT).  Because JPT
+      isn't running in the context of Zope and isn't written with Python,
+      there are necessarily some differences between JPT and ZPT.  This document
+      will concentrate on the ways that JPT differs from ZPT.  For an introduction
+      to ZPT refer to the chapter 
+      <a href="http://zope.org/Documentation/Books/ZopeBook/2_6Edition/ZPT.stx">Using
+      Zope Page Templates</a> in the 
+      <a href="http://zope.org/Documentation/Books/ZopeBook/2_6Edition/">Zope Book</a>.
+      For a complete reference to ZPT, refer to the 
+      <a href="http://www.zope.org/Documentation/Books/ZopeBook/2_6Edition/AppendixC.stx">ZPT Reference</a>.
+    </p>
+
+    <a name="tales"></a>
+    <div class="h2">TALES Expression Syntax</div>
+    <p>
+      There are some fundamental differences between path expressions in ZPT and
+      JPT.  Generally speaking, path expressions are resolved in JPT by traversing,
+      by means of reflection, properties and methods of Java objects. 
+    </p>
+
+    <a name="tales.path"></a>
+    <div class="h3">Path Expressions</div>
+    <p>
+      The first element in a path expression must be a variable, a class, or a literal.
+    </p>
+
+    <a name="tales.path.literals"></a>
+    <div class="h4">Literals</div>
+    <p>
+      Numeric and boolean literals are defined in the same way as in the Java language.  
+      String literals are delimited by single quotes.  Some example literals:
+      <ul>
+        <li>9 (integer literal)</li>
+        <li>9.0 (floating point literal)</li>
+        <li>32l (long integer literal)</li>
+        <li>true (boolean literal)</li>
+        <li>'foobar' (string literal)</li>
+      </ul>
+    </p>
+
+    <a name="tales.path.variables"></a>
+    <div class="h4">Variables</div>
+    <p>
+      A variable is either predefined, defined
+      via a <code>tal:define</code> attribute, or passed in to the template at runtime.  
+      The following variables are predefined:
+      <ul>
+        <li><code><b>here</b></code> refers to the context object, passed in at runtime</li>
+        <li><code><b>template</b></code> refers to the template object</li>
+        <li><code><b>resolver</b></code> refers to an instance of <code>Resolver</code> and is
+            used to find resources, such as other templates.  see <code><a href="#metal">metal:use-macro</a></code></li>
+        <li><code><b>repeat</b></code> see <code><a href="#tal.repeat">tal:repeat</a></code></li>
+        <li><code><b>bool</b></code> an instance of a <code><a href="#tales.helpers.bool">bool helper</a></code></li>
+        <li><code><b>math</b></code> an instance of a <code><a href="#tales.helpers.math">math helper</a></code></li>
+        <li><code><b>date</b></code> an instance of a <code><a href="#tales.helpers.date">date helper</a></code></li>
+        <li><code><b>default</b></code> prevents replacement of default text, works just as in ZPT.</li>
+        <li><code><b>nothing</b></code> equivalent to a Java <code>null</code>. This and any expression which
+          evaluates to <code>null</code> behaves just as <code>nothing</code> does in ZPT.
+      </ul>
+      The following variables are defined in ZPT but not in JPT:
+      <code>options, CONTEXTS, root, container, request, user, modules</code>.  
+      The <code>attrs</code> variable is defined in ZPT but is not yet implemented in JPT.
+      If you need this, holler.
+    </p>
+
+    <a name="tales.path.classes"></a>
+    <div class="h4">Classes</div>
+    <p>
+      A class may be referred to by it's fully qualified name.  This can allow calling
+      static methods on the class.  Example:
+      <ul>
+        <li><code>java.lang.System.currentTimeMillis()</code></li>
+      </ul>
+      A fully qualifed class name followed by <code>.class</code> allows you to
+      refer to the class object itself.  Example:
+      <ul>
+        <li><code>java.lang.Integer.class/instanceof( here/number )</code></li>
+      </ul>
+    </p>
+
+    <a name="tales.path.traversal"></a>
+    <div class="h4">Path traversal</div>
+    <p>
+      Following the initial path element, path elements are either properties or methods
+      of the preceding object.  Properties are denoted as a simple name and are resolved
+      as Java Bean properties.  Example:
+      <ul>
+        <li><code>here/name</code> will search for a method <code>getName()</code>
+            in the passed context object.
+        </li>
+      </ul> 
+      Alternatively, if a parent object is a <code>Map</code> it will be treated as
+      a dictionary and the processor will attempt a lookup with the next path element
+      as key.  
+      <ul>
+        <li><code>here/people/suzanne</code> if <code>people</code> is an instance
+        of <code>Map</code>, expression will be equivalent to the Java code:
+        <code>people.get( "suzanne" )</code></li>
+      </ul>
+    </p>
+    <p>
+      An arbitrary method may be called by specifying
+      the method name followed by an argument list contained in parentheses.  In the 
+      preceding example, 'here/name' is equivalent to 'here/getName()'.  Arguments in
+      method calls are evaluated as expressions.
+      <ul>
+        <li>here/add( 9, 8 )</li>
+        <li>here/values()/size()</li>
+        <li>here/getPage( request/getParameter('page') )</li>
+      </ul>
+      Properties and methods must be publically accessible.  The last element in a path 
+      expression may resolve to <code>null</code>, but if an intermediate element resolves
+      to <code>null</code> a <code>NoSuchPathException</code> will be thrown. 
+    </p>
+    
+    <a name="tales.path.arrays"></a>
+    <div class="h4">Arrays</div>
+    <p>
+      Array members may be accessed using the same syntax as in Java.  Any number of 
+      dimensions are supported.  The expression inside the array accessor may be any
+      TALES expression and must evaluate to an integer value.  If an array accessor
+      is found modifying an object that is not an array an exception is thrown.
+      <ul>
+        <li><code>here/people[2]</code></li>
+        <li><code>here/grid[point/x][point/y]</code></li>
+      </ul>
+    </p>
+      
+    <a name="tales.helpers">
+    <div class="h3">Helper Objects</div>
+    <p>
+      <b>DEPRECATED:</b> Helper objects were added to JPT before the author
+      discovered <a href="http://www.beanshell.org">BeanShell</a> and 
+      integrated it into JPT.  This allows JPT the use of 
+      <a href="#tales.java">Java expressions</a> just
+      like the use of Python expressions in ZPT.  Helper objects are still included
+      for backwards compatability although they will probably be phased out at 
+      some later date.  For the most part there's no reason to use them instead
+      of a Java expression, with the possible exception of the DateHelper which
+      allows formatting a date in one step, rather than having to instantiate
+      a SimpleDateFormat and then call it.
+    </p>
+    <p>
+      In ZPT, when expressions start to get complicated, you can resort to using
+      python expressions.  Although, truly complicated logic should be encapsulated
+      in methods in external objects, sometimes you just want write a simple 
+      boolean expression or add two numbers.  Since python expressions are not 
+      available to JPT, JPT includes a handful of helper objects, <code>math</code>,
+      <code>bool</code> and <code>date</code> which are available to the template as variables.
+    </p>
+    
+    <a name="tales.helpers.bool">
+    <div class="h4">BoolHelper</div>
+    <p>
+      The built-in variable <code>bool</code> is a helper object with the following 
+      static methods:
+      <ul>
+        <li><code>or( <i>x</i>, <i>y</i> )</code> boolean or of expressions x and y</li>
+        <li><code>and( <i>x</i>, <i>y</i> )</code> boolean and of expressions x and y</li>
+      </ul>
+      An example:
+      <ul>
+        <li><code>&lt;p tal:condition="bool/and( exists:here/pets/dog, not:here/pets/dog/badDog )"&gt;
+                  Good Dog&lt;p&gt;</code></li>
+      </ul>
+    <p>
+
+    <a name="tales.helpers.math">
+    <div class="h4">MathHelper</div>
+    <p>
+      The built-in variable <code>math</code> is a helper object with the following
+      static methods:
+      <ul>
+        <li><code>add( <i>x</i>, <i>y</i> )</code> add x and y</li>
+        <li><code>sub( <i>x</i>, <i>y</i> )</code> subtract y from x</li>
+        <li><code>mult( <i>x</i>, <i>y</i> )</code> multiply x and y</li>
+        <li><code>div( <i>x</i>, <i>y</i> )</code> divide x by y</li>
+        <li><code>mod( <i>x</i>, <i>y</i> )</code> x mod y</li>
+      </ul>
+      In all cases, <i>x</i> and <i>y</i> are assumed integers.  Some examples:
+      <ul>
+        <li><code>math/sub( here/assets, here/liabilities )</code></li>
+        <li><code>math/mult( 6, math/add( here/children, here/pets ) )</code></li>
+      </ul>
+    </p>
+
+    <a name="tales.helpers.date">
+    <div class="h4">DateHelper</div>
+    <p>
+      The built-in variable <code>date</code> is a helper object with the following
+      static methods:
+      <ul>
+        <li><code>format( <i>formatString</i>, <i>date</i> )</code> format date according to format string</li>
+      </ul>
+      The format string follows the same rules used by 
+      <a href="http://java.sun.com/j2se/1.4.2/docs/api/java/text/SimpleDateFormat.html">SimpleDateFormat</a>.
+      An example:
+      <ul>
+        <li><code>date/format( 'EEE MMMM d, yyyy h:mm:ss a', here/birthday )</code></li>
+      </ul>
+    </p>
+    
+    <a name="tales.java"></a>
+    <div class="h3">Java expressions</div>
+    <p>
+      Java expressions are made possible in JPT by <a href="http://www.beanshell.org">BeanShell</a>,
+      a scripting language that is fully compatible with the Java programming language and adds
+      some features of its own.  For the complete rundown and what you can do with BeanShell,
+      you should visit their <a href="http://www.beanshell.org">website</a>.  The interpreter
+      is very light weight and makes some very cool things possible.  JPT is distributed with
+      the <code>bsh-core</code> library jar which contains just the bare minimum functionality
+      to evaluate Java expressions.  To use some of the more advanced BeanShell features just
+      to to their <a href="http://www.beanshell.org">website</a> and download the complete 
+      <code>bsh</code> jar or the specific add-on jar that you're interested
+      in and put it in your classpath.
+    </p>
+    <p>
+      Java expressions work just like Python expressions in ZPT except that the Java language
+      is used instead of Python.  Any legal Java (or BeanShell) expression may be evaluated.
+      Some examples:
+      <ul>
+        <li><code>java: 4 + 5</code> returns the int 9</li>
+        <li><code>java: random = new Random( System.currentTimeMillis() ); 1 + random.nextInt( 10 )</code>
+            generates a random number between 1 and 10.</li>
+      </ul>
+    </p>
+    
+    <a name="tales.java.scripts"></a>
+    <div class="h4">Scripts</div>
+    <p>
+      Snippets of BeanShell code that are longer than a line or two can be stored externally
+      in a script that is callable by JPT.  Scripts are accessed using the <code>resolver</code>
+      variable just like with <a href="#metal">macros</a>.  The 
+      <code>Resolver.getBeanShellScript( String uri )</code> method returns a BeanShell script
+      object that is evaluated by executing the script.  The return value, if not specified by
+      a <code>return</code> statement is that last expression in the script.  
+      Example:<br/><pre>
+&lt;div tal:content="resolver/getBeanShellScript( 'coolscript.bsh' )"&gt;
+  The output of my very cool BeanShell script.
+&lt;/div&gt;
+      </pre>
+    </p>
+      
+    <a name="tales.java.variables"></a>
+    <div class="h4">Variables</div>
+    <p>
+      Variables are shared between the page template and the BeanShell context.  So all of
+      the variables already defined for the template are available in Java expressions or
+      scripts.  And by the same token, any new variable defined in a script or Java expression 
+      can be accessed from a path expression.
+    </p>
+    
+    <a name="tales.exists"></a>
+    <div class="h3">Exists expressions</div>
+    <p>
+      Exists epxressions work more or less like in ZPT.  If an expression evaluates to
+      <code>null</code> or causes a NoSuchPathException to be thrown, the expression
+      evaluates to <code>false</code>.  Otherwise the expression evaluates to <code>true</code>.
+    </p>
+
+    <a name="tales.not"></a>
+    <div class="h3">Not expressions</div>
+    <p>
+      Not expressions work more or less like in ZPT.  The expression to which <code>not:</code>
+      is applied must first be cast to a boolean.  The result is then negated.  Casts to 
+      boolean follow these rules:
+      <ul>
+        <li>For numbers, 0 evaluates to <code>false</code>; any non-zero number evaluates to 
+            <code>true</code>.</li>
+        <li>Empty collections or maps evaluate to <code>false</code>; those containing any
+            non-zero number of elements evaluate to <code>true</code></li>
+        <li><code>null</code> evaluates to <code>false</code>.  Any non-null object evaluates
+            to <code>true</code>, unless that object is an instance of <code>Boolean</code>,
+            <code>Number</code>, <code>Collection</code>, or <code>Map</code>, in which case
+            it evaluates according to the rules above.</li>
+      </ul>
+    </p>
+
+    <a name="tales.other"></a>
+    <div class="h3">Other expressions</div>
+    <p>
+      String expressions behave exactly as in ZPT.  Python and Nocall expressions are not
+      supported in JPT.
+    </p>
+
+    <a name="tal"></a>
+    <div class="h2">TAL Statements</div>
+    <p>
+      All TAL statements behave almost exactly as in ZPT, exept for <code>tal:no-call</code> which
+      is not yet implemented.  (If you need it, holler.)  <code>jpt:define</code> and 
+      <code>jpt:omit-tag</code> must cast their expression to a boolean, which follows the rules
+      described for <a href="#tales.not">Not expressions</a>.
+    </p>
+
+    <a name="tal.repeat"></a>
+    <div class="h3">tal:repeat</div>
+    <p>
+      There are a few minor variations for <code>tal:repeat</code>.  The repeat expression must 
+      evaluate to an array, an <code>Iterator</code> or a <code>Collection</code>.  If the 
+      expression evaluates
+      to an <code>Iterator</code> the repeat variable <code>length</code> is undefined.  The 
+      repeat variables <code>Letter</code> and <code>Roman</code> have been changed in JPT to
+      <code>capitalLetter</code> and <code>capitalRoman</code>, to avoid confusion with Java
+      case conventions.  
+    </p>
+
+    <a name="tal.evaluate"></a>
+    <div class="h3">tal:evaluate</div>
+    <p>
+      <code>tal:evaluate</code> is a new statement that is specific to JPT.  There is no
+      corresponding statement in ZPT.  It allows evaluating an expression when you don't
+      need to actually do anything with the return value.  Generally the expression will
+      impact the state of the BeanShell interpreter.  This statement comes first in the
+      order of operations.  Example:<br><pre>
+&lt;html tal:evaluate="java: import mypackage.util.*">
+  &lt;head&gt;
+    &lt;title&gt;My Page&lt;/title&gt;
+    . . . etc . . .
+&lt;/html&gt;
+</pre>
+    </p>
+      
+    <a name="metal"></a>
+    <div class="h2">METAL</div>
+    <p>
+      METAL statements behave exactly as in ZPT.  The only difference, which is really a difference
+      in Path expressions, is the means of finding another template which contains macros.  Since,
+      there is no Zope tree in which to locate templates, templates must be resolved via a URI.  
+      The predefined variable, <code>resolver</code>, holds a reference to an instance of 
+      <code>Resolver</code> which can be used to resolve references to external templates.
+     </p>
+     <p>
+       The <code>Resolver</code> class contains two methods,
+       <ul>
+         <li>getPageTemplate( String uri )</li>
+         <li>getResource( String uri )</li>
+         <li>getBeanShellScript( String uri )</li>
+       </ul>
+       The <code>getPageTemplate</code> method returns a <code>PageTemplate</code> instance which can then
+       be used for macro processing.  <code>getBeanShellScript</code> returns 
+       <a href="#tales.java.scripts">BeanShell script</a> that is then executed.  
+       <code>getResource</code> is there in case anyone needs a more generic resource
+       finding method and returns a <code>URL</code>.  If the URI passed to these methods is relative
+       it will be resolved relative to the URI of the current template.  
+     </p>
+     <p>
+       For example:<br><pre>
+&lt;html metal:use-macro="resolver/getPageTemplate( '../base.jpt' )/macros/page"&gt;
+  &lt;div metal:fill-slot="content"&gt;
+    This is the content for my web page.
+  &lt;/div&gt;
+&lt;/html&gt;</pre>
+     </p>
+
+     <a name="invocation"></a>
+     <div class="h2">Invoking Page Templates</div>
+     <p>
+       <code>PageTemplate</code> has been made into an interface, in case anyone wants to 
+       write a different implementation.  To date the only known implementation is the
+       PageTemplateImpl included in this package.  The PageTemplate interface looks like 
+       this:
+     </p>
+     <p><pre>
+package com.christophermrossi.jpt;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Map;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.ext.LexicalHandler;
+
+public interface PageTemplate {
+    static final String TAL_NAMESPACE_URI = "http://xml.zope.org/namespaces/tal";
+    static final String METAL_NAMESPACE_URI = "http://xml.zope.org/namespaces/metal";
+
+    void process( ContentHandler contentHandler, LexicalHandler lexicalHandler, Object context, Map dictionary )
+        throws SAXException, PageTemplateException, IOException;
+    void process( OutputStream output, Object context )
+        throws SAXException, PageTemplateException, IOException;
+    void process( OutputStream output, Object context, Map dictionary )
+        throws SAXException, PageTemplateException, IOException;
+
+    Map getMacros();
+}</pre>
+     </p>
+     <p>
+       The <code>context</code> may be any Java object.  This is the same object referred to by <code>here</code>
+       in path expressions.  The <code>dictionary</code> is optional and may be used to define variables for use
+       by the template.  You have the option of passing in an <code>OutputStream</code>, in which case the result
+       of the template processing will be serialized directly to that stream, or specifying SAX handlers in
+       which case the results of template processing will be streamed as SAX events to those handlers.
+     </p>
+     <p>
+       An example of invoking a PageTemplate from a Servlet:
+     <p>
+     <p><pre>
+public class MyServlet extends HttpServlet {
+    public void service( HttpServletRequest request, HttpServletResponse response )
+        throws ServletException, IOException
+    {
+        // Some business logic here. . . .
+        User user = . . . 
+        Record record = . . .
+
+        // Response to user
+        try {
+	    // Find and instantiate template, located in the record directory
+            // under our web application root.
+            URL templateURL = getServletContext().getResource( "record/showrecord.jpt" );
+            PageTemplate template = new PageTemplateImpl( templateURL );
+
+            // Initialize some variables to be used by the template
+            Map dictionary = new HashMap();
+            dictionary.put( "request", request );
+            dictionary.put( "user", user );
+
+            // Output response 
+	    OutputStream output = response.getOutputStream();
+	    response.setContentType( "text/html" );
+	    template.process( output, record, dictionary );
+            output.close();
+        } catch( PageTemplateException e ) {
+            // Oh no!
+            throw new ServletException(e);
+        }
+    }
+}</pre>
+    </p>
+  </body>
+</html>
+     

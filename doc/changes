@@ -1,0 +1,25 @@
+ - implemented 'default' and 'nothing' variables
+ - Added tal:evaluate statement.
+ - Fixed bug(?) wherein variables used in a tal:repeat would clobber
+   their previous values.  Now when a tal:repeat loop finishes the
+   previous value of the repeat variable is restored.
+
+New in 0.10.0
+ - Integrated the BeanShell.  This allows evaluation of Java expressions 
+   and calling of external BeanShell scripts.
+ - Structured (xml/html) content is now handled by nekohtml rather
+   than Tidy.  Introduced HTMLFragment object which might potentially
+   be useful in other apps.
+
+New in 0.9.3
+
+ - Added real namespace support (thank you nekohtml).
+ - Added support for arrays.
+ - Added bool/cond to bool helper
+ - Added date helper.
+ - Upgraded metal code to support slots definition and filling across
+   multiple layers of macro.
+ - Fixed bug with evaluating arrays inside method calls.
+ - Added xercesImpl to lib as it is a dependency of nekohtml.  This didn't 
+   become a problem until I upgraded to ant 1.6.2.  Previous versions of ant 
+   must have included xerces in the classpath.

@@ -1,0 +1,6 @@
+todo items:
+
+implement tal:on-error
+implement global|local for tal:define (currently all variables are 'global')
+
+what else?
