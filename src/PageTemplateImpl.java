@@ -104,7 +104,10 @@ public class PageTemplateImpl implements PageTemplate {
             
             // Avoid loading external DTDs (which may not always be available)
             xmlReader.setFeature( "http://xml.org/sax/features/validation", false );
-            xmlReader.setFeature( "http://apache.org/xml/features/nonvalidating/load-external-dtd", false );
+            try {
+                xmlReader.setFeature( "http://apache.org/xml/features/nonvalidating/load-external-dtd", false );
+            } 
+            catch( org.xml.sax.SAXNotRecognizedException e ) {}
         }
         return xmlReader;
     }
