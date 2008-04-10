@@ -16,26 +16,29 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-package @package@;
+package com.christophermrossi.jpt;
+
+import java.net.URI;
+import java.net.URL;
 
 /**
  * @author <a href="mailto:chris@christophermrossi.com">Chris Rossi</a>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.2 $
  */
-public class NoSuchPathException extends ExpressionEvaluationException {
-    public NoSuchPathException() {
-        super();
+public class URIResolver extends Resolver {
+    protected URI uri;
+
+    public URIResolver( URI uri ) {
+        this.uri = uri;
     }
 
-    public NoSuchPathException( String message ) {
-        super( message );
-    }
-
-    public NoSuchPathException( String message, Throwable cause ) {
-        super( message, cause );
-    }
-
-    public NoSuchPathException( Throwable cause ) {
-        super( cause );
+    public URL getResource( String path ) 
+        throws java.net.MalformedURLException
+    {
+        URI resource = uri.resolve( path );
+        if ( resource != null ) {
+            return resource.toURL();
+        }
+        return null;
     }
 }

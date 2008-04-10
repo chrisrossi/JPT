@@ -16,26 +16,22 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-package @package@;
+package com.christophermrossi.jpt;
+
+import junit.framework.*;
 
 /**
- * @author <a href="mailto:chris@christophermrossi.com">Chris Rossi</a>
- * @version $Revision: 1.2 $
+ * TestSuite that runs all the object tests
+ *
  */
-public class ExpressionSyntaxException extends PageTemplateException {
-    public ExpressionSyntaxException() {
-        super();
+public class AllTests {    
+    public static void main ( String[] args ) {
+        junit.textui.TestRunner.run( suite() );
     }
-
-    public ExpressionSyntaxException( String message ) {
-        super( message );
-    }
-
-    public ExpressionSyntaxException( String message, Throwable cause ) {
-        super( message, cause );
-    }
-
-    public ExpressionSyntaxException( Throwable cause ) {
-        super( cause );
+ 
+    public static Test suite ( ) {
+        TestSuite suite = new TestSuite("jpt test suite");
+        suite.addTest( PageTemplateImplTest.suite() );
+        return suite;
     }
 }

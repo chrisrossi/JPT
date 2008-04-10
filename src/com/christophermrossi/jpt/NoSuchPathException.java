@@ -16,22 +16,26 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-package test;
-
-import junit.framework.*;
+package com.christophermrossi.jpt;
 
 /**
- * TestSuite that runs all the object tests
- *
+ * @author <a href="mailto:chris@christophermrossi.com">Chris Rossi</a>
+ * @version $Revision: 1.3 $
  */
-public class AllTests {    
-    public static void main ( String[] args ) {
-        junit.textui.TestRunner.run( suite() );
+public class NoSuchPathException extends ExpressionEvaluationException {
+    public NoSuchPathException() {
+        super();
     }
- 
-    public static Test suite ( ) {
-        TestSuite suite = new TestSuite("jpt test suite");
-        suite.addTest( PageTemplateImplTest.suite() );
-        return suite;
+
+    public NoSuchPathException( String message ) {
+        super( message );
+    }
+
+    public NoSuchPathException( String message, Throwable cause ) {
+        super( message, cause );
+    }
+
+    public NoSuchPathException( Throwable cause ) {
+        super( cause );
     }
 }

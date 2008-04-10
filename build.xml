@@ -8,12 +8,9 @@
   <property name="optimize" value="off"/>
   <property name="deprecation" value="on"/>
 
-  <property name="package.prefix" value="com.webslingerZ.jpt"/>
-  <property name="package.path" value="com/webslingerZ/jpt"/>
-
   <property name="src" value="src"/>
   <property name="build" value="build"/>
-  <property name="build.src" value="${build}/src/${package.path}"/>
+  <property name="build.src" value="${build}/src"/>
   <property name="build.classes" value="${build}/classes"/>
   <property name="dist"  value="dist"/>
   <property name="name" value="jpt"/>
@@ -41,7 +38,6 @@
     <mkdir dir="${build}"/>
     <mkdir dir="${build}/src"/>
     <filter token="name" value="${name}"/>
-    <filter token="package" value="${package.prefix}"/>
   </target>
 
   <target name="prepare-src" depends="init">
@@ -54,10 +50,14 @@
     <copy todir="${test.src}" filtering="true">
       <fileset dir="${test}">
         <include name="**/*.java"/>
+      </fileset>
+    </copy>
+    <!--copy todir="${test.src}/com/christophermrossi/jpt" filtering="true">
+      <fileset dir="${test}">
         <include name="**/*.jpt"/>
         <include name="**/*.bsh"/>
       </fileset>
-    </copy>
+    </copy-->
     <copy todir="${test.src}" filtering="false">
       <fileset dir="${test}">
         <include name="**/*.html"/>
@@ -74,13 +74,13 @@
            deprecation="${deprecation}">
       <classpath refid="classpath"/>
     </javac>
-    <copy todir="${build.classes}/test" filtering="true">
+    <copy todir="${build.classes}" filtering="true">
       <fileset dir="${test}">
         <include name="**/*.jpt"/>
         <include name="**/*.bsh"/>
       </fileset>
     </copy>
-    <copy todir="${build.classes}/test" filtering="false">
+    <copy todir="${build.classes}" filtering="false">
       <fileset dir="${test}">
         <include name="**/*.html"/>
       </fileset>
@@ -90,7 +90,7 @@
   <target name="unittest" depends="compile">
     <junit fork="yes" haltonerror="yes" haltonfailure="yes" printsummary="yes">
       <formatter type="plain" usefile="false"/>
-      <test name="test.AllTests" />
+      <test name="com.christophermrossi.jpt.AllTests" />
       <classpath refid="testclasspath"/>
     </junit>
   </target>
@@ -106,12 +106,12 @@
   <target name="javadocs" depends="init">
     <mkdir dir="${build}/javadocs"/>
     <javadoc 
-      packagenames="${package.prefix}.*"
+      packagenames="com.christophermrossi.jpt.*"
       sourcepath="${src}" 
       destdir="${build}/javadocs"
       windowtitle="${name} API"
       doctitle="${name}"
-      bottom="Copyright &#169; ${year} webslingerZ, Inc. All Rights Reserved."
+      bottom="Copyright &#169; ${year} Chris Rossi All Rights Reserved."
     >
       <classpath refid="classpath"/>
     </javadoc>

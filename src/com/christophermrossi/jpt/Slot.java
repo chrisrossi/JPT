@@ -16,29 +16,24 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-package @package@;
+package com.christophermrossi.jpt;
 
-import java.net.URI;
-import java.net.URL;
+import bsh.Interpreter;
+
+import java.io.IOException;
+import java.util.Stack;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.ext.LexicalHandler;
 
 /**
  * @author <a href="mailto:chris@christophermrossi.com">Chris Rossi</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.4 $
  */
-public class URIResolver extends Resolver {
-    protected URI uri;
-
-    public URIResolver( URI uri ) {
-        this.uri = uri;
-    }
-
-    public URL getResource( String path ) 
-        throws java.net.MalformedURLException
-    {
-        URI resource = uri.resolve( path );
-        if ( resource != null ) {
-            return resource.toURL();
-        }
-        return null;
-    }
+interface Slot {
+    void process( ContentHandler contentHandler, 
+                  LexicalHandler lexicalHandler, 
+                  Interpreter beanShell,
+                  Stack slotStack )
+        throws SAXException, PageTemplateException, IOException;
 }

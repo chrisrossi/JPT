@@ -16,46 +16,26 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-package @package@;
+package com.christophermrossi.jpt;
 
 /**
  * @author <a href="mailto:chris@christophermrossi.com">Chris Rossi</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
-public class ExpressionEvaluationException extends PageTemplateException {
-    public ExpressionEvaluationException() {
+public class ExpressionSyntaxException extends PageTemplateException {
+    public ExpressionSyntaxException() {
         super();
     }
 
-    public ExpressionEvaluationException( String message ) {
+    public ExpressionSyntaxException( String message ) {
         super( message );
     }
 
-    public ExpressionEvaluationException( String message, Throwable cause ) {
+    public ExpressionSyntaxException( String message, Throwable cause ) {
         super( message, cause );
     }
 
-    public ExpressionEvaluationException( Throwable cause ) {
+    public ExpressionSyntaxException( Throwable cause ) {
         super( cause );
-    }
-
-    String expression = null;
-
-    void setExpression( String expression ) {
-        // Do not clobber first expression
-        if ( this.expression == null ) {
-            this.expression = expression;
-        }
-    }
-
-    public String getExpression() {
-        return expression;
-    }
-
-    public String getMessage() {
-        if ( expression != null ) {
-            return expression + ": " + super.getMessage();
-        }
-        return super.getMessage();
     }
 }

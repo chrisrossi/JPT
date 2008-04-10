@@ -16,11 +16,11 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-package test;
+package com.christophermrossi.jpt;
 
-import @package@.HTMLFragment;
-import @package@.PageTemplate;
-import @package@.PageTemplateImpl;
+import com.christophermrossi.jpt.HTMLFragment;
+import com.christophermrossi.jpt.PageTemplate;
+import com.christophermrossi.jpt.PageTemplateImpl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -110,7 +110,7 @@ public abstract class PageTemplateTest extends TestCase {
         String expected = fixCRLF( loadTextFile( getClass().getResourceAsStream( html ) ) );
         if ( ! result.equals( expected ) ) {
             FileOutputStream out = new FileOutputStream( newHtml );
-            out.write( resultBinary );
+            out.write( result.getBytes( "UTF-8" ) );
             out.close();
         }
         assertTrue( "unexpected results: see " + newHtml, result.equals( expected ) );

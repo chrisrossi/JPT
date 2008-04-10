@@ -38,7 +38,7 @@
       <ul>
         <li>2 + 3 = <span tal:replace="here/add( 2, 3 )">a number</span>
         <li>this is equivalent to <span tal:replace="here/getFriend()/getNumber()">here/friend/number</span>
-        <li>9 - 9 = <span tal:replace="test.PageTemplateTest/subtract( here/friend/number, here/getFriend()/getNumber() )">a number</span>
+        <li>9 - 9 = <span tal:replace="com.christophermrossi.jpt.PageTemplateTest/subtract( here/friend/number, here/getFriend()/getNumber() )">a number</span>
         <li>9 + 9 * 5 = <span tal:replace="here/add( here/friend/number, here/multiply( here/friend/number, 5 ) )">a number</span>
         <li>2 + 3 = <span tal:replace="math/add( here/getNumberTwo(), 3 )">a sum</span>
       </ul>
