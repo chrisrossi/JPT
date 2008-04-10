@@ -119,13 +119,17 @@
        done, you will need for this to work.  Use case courtesy of
        James Davies.
        <tal:block tal:repeat="n here/table">
-         <div tal:content="n.length"/>
+         <div tal:content="string: ${repeat/n/index}: ${n.length}"/>
          <ul>
            <div tal:repeat="n n">
-             <li tal:content="n">n</li>
+             <li><span tal:content="repeat/n/index"/>: <span tal:content="n">n</span></li>
            </div>
          </ul>
        </tal:block>
+       <p tal:condition="exists:repeat">
+         If you see this paragraph, the 'repeat' map was not disposed of
+         properly.
+       </p>
     </p> 
     <p tal:evaluate="java: joemama = 1 + 3"
        tal:content="joemama">Joe Mama</p>
