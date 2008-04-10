@@ -1,0 +1,127 @@
+<?xml version="1.0" standalone="yes"?>
+
+<project default="dist" basedir=".">
+
+  <property file="build.properties"/>
+
+  <property name="debug" value="on"/>
+  <property name="optimize" value="off"/>
+  <property name="deprecation" value="on"/>
+
+  <property name="package.prefix" value="com.webslingerZ.jpt"/>
+  <property name="package.path" value="com/webslingerZ/jpt"/>
+
+  <property name="src" value="src"/>
+  <property name="build" value="build"/>
+  <property name="build.src" value="${build}/src/${package.path}"/>
+  <property name="build.classes" value="${build}/classes"/>
+  <property name="dist"  value="dist"/>
+  <property name="name" value="jpt"/>
+  <property name="distjar" value="${dist}/${name}.jar"/>
+
+  <property name="test" value="test"/>
+  <property name="test.src" value="${build}/src/test"/>
+
+  <path id="classpath">
+    <fileset dir="./lib">
+      <include name="*.jar"/>
+    </fileset>
+  </path>
+
+  <path id="distclasspath">
+    <path refid="classpath"/>
+    <pathelement path="${build.classes}"/>
+  </path>
+
+  <path id="testclasspath">
+    <path refid="distclasspath"/>
+  </path>
+ 
+  <target name="init">
+    <mkdir dir="${build}"/>
+    <mkdir dir="${build}/src"/>
+    <filter token="name" value="${name}"/>
+    <filter token="package" value="${package.prefix}"/>
+  </target>
+
+  <target name="prepare-src" depends="init">
+    <copy todir="${build.src}" filtering="true">
+      <fileset dir="${src}">
+        <include name="**/*.java"/>
+      </fileset>
+    </copy>
+    <!--<mkdir dir="${test.classes}"/>-->
+    <copy todir="${test.src}" filtering="true">
+      <fileset dir="${test}">
+        <include name="**/*.java"/>
+        <include name="**/*.jpt"/>
+        <include name="**/*.bsh"/>
+      </fileset>
+    </copy>
+    <copy todir="${test.src}" filtering="false">
+      <fileset dir="${test}">
+        <include name="**/*.html"/>
+      </fileset>
+    </copy>
+    <mkdir dir="${build.classes}"/>
+  </target>
+
+  <target name="compile" depends="prepare-src">
+    <javac srcdir="${build}/src" 
+           destdir="${build.classes}" 
+           debug="${debug}"
+           optimize="${optimize}"
+           deprecation="${deprecation}">
+      <classpath refid="classpath"/>
+    </javac>
+    <copy todir="${build.classes}/test" filtering="true">
+      <fileset dir="${test}">
+        <include name="**/*.jpt"/>
+        <include name="**/*.bsh"/>
+      </fileset>
+    </copy>
+    <copy todir="${build.classes}/test" filtering="false">
+      <fileset dir="${test}">
+        <include name="**/*.html"/>
+      </fileset>
+    </copy>
+  </target>
+
+  <target name="unittest" depends="compile">
+    <junit fork="yes" haltonerror="yes" haltonfailure="yes" printsummary="yes">
+      <formatter type="plain" usefile="false"/>
+      <test name="test.AllTests" />
+      <classpath refid="testclasspath"/>
+    </junit>
+  </target>
+
+  <target name="dist" depends="unittest">
+    <mkdir dir="${dist}"/>
+    <jar jarfile="${distjar}" 
+         basedir="${build.classes}" 
+         includes="com/**" 
+         excludes="**/test/**" />
+  </target>
+
+  <target name="javadocs" depends="init">
+    <mkdir dir="${build}/javadocs"/>
+    <javadoc 
+      packagenames="${package.prefix}.*"
+      sourcepath="${src}" 
+      destdir="${build}/javadocs"
+      windowtitle="${name} API"
+      doctitle="${name}"
+      bottom="Copyright &#169; ${year} webslingerZ, Inc. All Rights Reserved."
+    >
+      <classpath refid="classpath"/>
+    </javadoc>
+  </target>
+
+  <target name="clean">
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+  </target>
+
+  <target name="rebuild" depends="clean,dist"/>
+
+</project>
