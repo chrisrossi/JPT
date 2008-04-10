@@ -113,6 +113,20 @@
         properly.
       </p>
     </p>
+    <p>
+       Let's try a nested loop using the same loop variable name.
+       Apparently if you use recursive macros, something I've never
+       done, you will need for this to work.  Use case courtesy of
+       James Davies.
+       <tal:block tal:repeat="n here/table">
+         <div tal:content="n.length"/>
+         <ul>
+           <div tal:repeat="n n">
+             <li tal:content="n">n</li>
+           </div>
+         </ul>
+       </tal:block>
+    </p> 
     <p tal:evaluate="java: joemama = 1 + 3"
        tal:content="joemama">Joe Mama</p>
   </body>

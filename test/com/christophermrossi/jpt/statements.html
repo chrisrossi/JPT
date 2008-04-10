@@ -1766,9 +1766,92 @@
     
 <p></p>
     
+<p>
+       Let's try a nested loop using the same loop variable name.
+       Apparently if you use recursive macros, something I've never
+       done, you will need for this to work.  Use case courtesy of
+       James Davies.
+       <tal:block xmlns:tal="http://xml.zope.org/namespaces/tal">
+         
+<div>4</div>
+         
+<ul>
+           
+<div>
+             
+<li>1</li>
+           
+</div>
+<div>
+             
+<li>2</li>
+           
+</div>
+<div>
+             
+<li>3</li>
+           
+</div>
+<div>
+             
+<li>4</li>
+           
+</div>
+         
+</ul>
+       </tal:block>
+<tal:block xmlns:tal="http://xml.zope.org/namespaces/tal">
+         
+<div>4</div>
+         
+<ul>
+           
+<div>
+             
+<li>5</li>
+           
+</div>
+<div>
+             
+<li>6</li>
+           
+</div>
+<div>
+             
+<li>7</li>
+           
+</div>
+<div>
+             
+<li>8</li>
+           
+</div>
+         
+</ul>
+       </tal:block>
+<tal:block xmlns:tal="http://xml.zope.org/namespaces/tal">
+         
+<div>2</div>
+         
+<ul>
+           
+<div>
+             
+<li>9</li>
+           
+</div>
+<div>
+             
+<li>10</li>
+           
+</div>
+         
+</ul>
+       </tal:block>
+    
+</p> 
+    
 <p>4</p>
   
-
-
 </body>
 </html>

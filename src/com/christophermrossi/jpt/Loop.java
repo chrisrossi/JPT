@@ -37,6 +37,7 @@ public class Loop {
     Iterator iterator;
     int index = -1;
     int length = -1; 
+    Loop loopParent = null;
     
     Loop( String expression, Interpreter beanShell ) throws PageTemplateException {
         if ( expression == null ) {
@@ -90,7 +91,7 @@ public class Loop {
                 repeat = new TreeMap();
                 beanShell.set( "repeat", repeat );
             }
-            repeat.put( this.variableName, this );
+            this.loopParent = (Loop)repeat.put( this.variableName, this );
         } catch( bsh.EvalError e ) {
             throw new PageTemplateException(e);
         }
@@ -99,7 +100,13 @@ public class Loop {
     void removeFromRepeat( Interpreter beanShell ) throws PageTemplateException {
         try {
             Map repeat = (Map)beanShell.get( "repeat" );
-            repeat.remove( this.variableName );
+            if ( this.loopParent == null ) {
+            	repeat.remove( this.variableName );
+            }
+            else {
+            	repeat.put( this.variableName, this.loopParent );
+            	this.loopParent = null;
+            }
             if ( repeat.size() == 0 ) {
                 beanShell.unset( "repeat" );
             }
